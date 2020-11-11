@@ -5,6 +5,7 @@
 
 #include <Core/Engine.h>
 #include "Shuriken.h"
+#include "Balloon.h"
 
 using namespace std;
 
@@ -27,17 +28,22 @@ void BowAndArrow::Init()
 	GetCameraInput()->SetActive(false);
 
 	glm::vec3 corner = glm::vec3(0, 0, 0);
+	glm::vec3 center = glm::vec3(0, 0, 0);
 	float length = 100;
+	float balloonDiameter = 50;
 
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(1, 0, 0));
-
 	AddMeshToList(shuri);
+
+	Mesh* balloon = Balloon::createCircle("balloon", center, balloonDiameter, glm::vec3(1, 0, 1));
+	AddMeshToList(balloon);
 }
 
 
 void BowAndArrow::FrameStart()
 {
 	// Clears the color buffer (using the previously set color) and depth buffer
+	// glClearColor(1, .5f, .5f, 1);
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -45,10 +51,19 @@ void BowAndArrow::FrameStart()
 
 void BowAndArrow::Update(float deltaTimeSeconds)
 {
-	modelMatrix = glm::mat3(1);
-	modelMatrix *= Transformations::Translate(150, 250);
-	modelMatrix *= Transformations::Scale(.15f, .15f);
-	RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
+	{
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transformations::Translate(150, 250);
+		modelMatrix *= Transformations::Scale(.15f, .15f);
+		RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
+	}
+
+	{
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transformations::Translate(80, 90);
+		// modelMatrix *= Transformations::Scale(.1f, .15f);
+		RenderMesh2D(meshes["balloon"], shaders["VertexColor"], modelMatrix);
+	}
 }
 
 void BowAndArrow::FrameEnd()
