@@ -41,13 +41,30 @@ Mesh* Balloon::createCircle(std::string name, glm::vec3 circleCenter,
 	return circle;
 }
 
-Mesh* createString(std::string name, glm::vec3 leftBottomCorner,
+Mesh* Balloon::createString(std::string name, glm::vec3 leftBottomCorner,
 	float length, glm::vec3 color, bool fill) {
+
+	glm::vec3 corner = leftBottomCorner;
+
+	length *= 2;
 		
-	std::vector<VertexFormat> vertices;
-	std::vector<unsigned short> indices;
+	std::vector<VertexFormat> vertices = {
+		VertexFormat(corner, color),
+		VertexFormat(corner + glm::vec3(0.1 * length, -.2f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-0.1 * length, -.3f * length, 0), color),
+		VertexFormat(corner + glm::vec3(0.1 * length, -.4f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-0.1 * length, -.5f * length, 0), color),
+		VertexFormat(corner + glm::vec3(0.1 * length, -.6f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-0.1 * length, -.7f * length, 0), color),
+		VertexFormat(corner + glm::vec3(0.1 * length, -.8f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-0.1 * length, -.9f * length, 0), color)
+	};
 
-	glm::vec3 center = leftBottomCorner;
+	std::vector<unsigned short> indices = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
+	Mesh* stringMesh = new Mesh(name);
+	stringMesh->SetDrawMode(GL_LINE_STRIP);
 
+	stringMesh->InitFromData(vertices, indices);
+	return stringMesh;
 }

@@ -35,8 +35,11 @@ void BowAndArrow::Init()
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(1, 0, 0));
 	AddMeshToList(shuri);
 
-	Mesh* balloon = Balloon::createCircle("balloon", center, balloonDiameter, glm::vec3(1, 0, 1));
-	AddMeshToList(balloon);
+	Mesh* circle = Balloon::createCircle("circle", center, balloonDiameter, glm::vec3(1, 0, 1));
+	AddMeshToList(circle);
+
+	Mesh* stringMesh = Balloon::createString("string", center, balloonDiameter, glm::vec3(1, 0, 1));
+	AddMeshToList(stringMesh);
 }
 
 
@@ -62,7 +65,8 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transformations::Translate(80, 90);
 		// modelMatrix *= Transformations::Scale(.1f, .15f);
-		RenderMesh2D(meshes["balloon"], shaders["VertexColor"], modelMatrix);
+		RenderMesh2D(meshes["circle"], shaders["VertexColor"], modelMatrix);
+		RenderMesh2D(meshes["string"], shaders["VertexColor"], modelMatrix);
 	}
 }
 
