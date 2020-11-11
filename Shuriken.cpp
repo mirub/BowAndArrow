@@ -6,7 +6,7 @@
 #include <Core/Engine.h>
 
 Mesh* Shuriken::createShuriken(std::string name, glm::vec3 leftBottomCorner,
-	float length, glm::vec3 color, bool fill = false){
+	float length, glm::vec3 color, bool fill){
 
 	glm::vec3 corner = leftBottomCorner;
 
@@ -24,17 +24,13 @@ Mesh* Shuriken::createShuriken(std::string name, glm::vec3 leftBottomCorner,
 	};
 
 	Mesh* shuriken = new Mesh(name);
-	std::vector<unsigned short> indices = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+	std::vector<unsigned short> indices = { 0, 1, 2,
+											0, 3, 4,
+											0, 5, 6,
+											0, 7, 8 };
 
-	if (!fill) {
+	if (fill) {
 		shuriken->SetDrawMode(GL_LINE_LOOP);
-	}
-	else {
-		// draw 2 triangles. Add the remaining 2 indices
-		indices.push_back(2);
-		indices.push_back(4);
-		indices.push_back(6);
-		indices.push_back(8);
 	}
 
 	shuriken->InitFromData(vertices, indices);
