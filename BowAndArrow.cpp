@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <Core/Engine.h>
+#include "Shuriken.h"
 
 using namespace std;
 
@@ -31,36 +32,93 @@ void BowAndArrow::Init()
 	glm::vec3 corner = glm::vec3(0.001, 0.001, 0);
 	length = 0.99f;
 
-	//Mesh* square1 = Object2D::CreateSquare("square1", corner, length, glm::vec3(1, 0, 0));
-	//AddMeshToList(square1);
+	Mesh* shuri = Shuriken::createShuriken("shuriken1", corner, length, glm::vec3(1, 0, 0));
 
+	AddMeshToList(shuri);
+}
+
+// 2D visualization matrix
+glm::mat3 BowAndArrow::VisualizationTransf2D(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+{
+	float sx, sy, tx, ty;
+	sx = viewSpace.width / logicSpace.width;
+	sy = viewSpace.height / logicSpace.height;
+	tx = viewSpace.x - sx * logicSpace.x;
+	ty = viewSpace.y - sy * logicSpace.y;
+
+	return glm::transpose(glm::mat3(
+		sx, 0.0f, tx,
+		0.0f, sy, ty,
+		0.0f, 0.0f, 1.0f));
+}
+
+// uniform 2D visualization matrix (same scale factor on x and y axes)
+glm::mat3 BowAndArrow::VisualizationTransf2DUnif(const LogicSpace& logicSpace, const ViewportSpace& viewSpace)
+{
+	float sx, sy, tx, ty, smin;
+	sx = viewSpace.width / logicSpace.width;
+	sy = viewSpace.height / logicSpace.height;
+	if (sx < sy)
+		smin = sx;
+	else
+		smin = sy;
+	tx = viewSpace.x - smin * logicSpace.x + (viewSpace.width - smin * logicSpace.width) / 2;
+	ty = viewSpace.y - smin * logicSpace.y + (viewSpace.height - smin * logicSpace.height) / 2;
+
+	return glm::transpose(glm::mat3(
+		smin, 0.0f, tx,
+		0.0f, smin, ty,
+		0.0f, 0.0f, 1.0f));
+}
+
+void BowAndArrow::SetViewportArea(const ViewportSpace& viewSpace, glm::vec3 colorColor, bool clear)
+{
+	glViewport(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
+
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(viewSpace.x, viewSpace.y, viewSpace.width, viewSpace.height);
+
+	// Clears the color buffer (using the previously set color) and depth buffer
+	glClearColor(colorColor.r, colorColor.g, colorColor.b, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_SCISSOR_TEST);
+
+	GetSceneCamera()->SetOrthographic((float)viewSpace.x, (float)(viewSpace.x + viewSpace.width), (float)viewSpace.y, (float)(viewSpace.y + viewSpace.height), 0.1f, 400);
+	GetSceneCamera()->Update();
 }
 
 void BowAndArrow::FrameStart()
 {
-	// clears the color buffer (using the previously set color) and depth buffer
+	// Clears the color buffer (using the previously set color) and depth buffer
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::ivec2 resolution = window->GetResolution();
-	// sets the screen area where to draw
-	glViewport(0, 0, resolution.x, resolution.y);
 }
 
 void BowAndArrow::Update(float deltaTimeSeconds)
 {
-	// TODO: update steps for translation, rotation, scale, in order to create animations
 
-	// TODO: create animations by multiplying current transform matrix with matrices from Transform 2D
+	glm::ivec2 resolution = window->GetResolution();
 
-	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+	// Sets the screen area where to draw - the left half of the window
+	viewSpace = ViewportSpace(0, 0, resolution.x / 2, resolution.y);
+	SetViewportArea(viewSpace, glm::vec3(0), true);
 
-	//TODO create animations by multiplying current transform matrix with matrices from Transform 2D
+	// Compute the 2D visualization matrix
+	visMatrix = glm::mat3(1);
+	visMatrix *= VisualizationTransf2D(logicSpace, viewSpace);
 
-	RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+	DrawScene(visMatrix);
 
-	//TODO create animations by multiplying current transform matrix with matrices from Transform 2D
-	RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
+	// The viewport is now the right half of the window
+
+	viewSpace = ViewportSpace(resolution.x / 2, 0, resolution.x / 2, resolution.y);
+	SetViewportArea(viewSpace, glm::vec3(0.5f), true);
+
+	// Compute uniform 2D visualization matrix
+	visMatrix = glm::mat3(1);
+	visMatrix *= VisualizationTransf2DUnif(logicSpace, viewSpace);
+	DrawScene(visMatrix);
 }
 
 void BowAndArrow::FrameEnd()
@@ -68,14 +126,33 @@ void BowAndArrow::FrameEnd()
 
 }
 
+void BowAndArrow::DrawScene(glm::mat3 visMatrix)
+{
+	modelMatrix = visMatrix * Transform2D::Translate(0, 0);
+	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+
+	modelMatrix = visMatrix * Transform2D::Translate(3, 0);
+	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+
+	modelMatrix = visMatrix * Transform2D::Translate(1.5, 1.5);
+	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+
+	modelMatrix = visMatrix * Transform2D::Translate(0, 3);
+	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+
+	modelMatrix = visMatrix * Transform2D::Translate(3, 3);
+	RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+}
+
 void BowAndArrow::OnInputUpdate(float deltaTime, int mods)
 {
-
+	//TODO move the logic window with W, A, S, D (up, left, down, right)
+	//TODO zoom in and zoom out logic window with Z and X
 }
 
 void BowAndArrow::OnKeyPress(int key, int mods)
 {
-	// add key press event
+
 }
 
 void BowAndArrow::OnKeyRelease(int key, int mods)
@@ -99,9 +176,5 @@ void BowAndArrow::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods
 }
 
 void BowAndArrow::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
-{
-}
-
-void BowAndArrow::OnWindowResize(int width, int height)
 {
 }

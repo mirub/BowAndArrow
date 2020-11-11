@@ -1,16 +1,11 @@
 #pragma once
 
+#include <Component/SimpleScene.h>
 #include <Core/Engine.h>
 
-class Shuriken
+namespace Shuriken
 {
-public:
-	Shuriken();
-	~Shuriken();
 
-	Mesh* createShuriken(const char* name, const std::vector<VertexFormat>& vertices,
-							const std::vector<unsigned short>& indices);
-
-private:
-	
+	Mesh* createShuriken(std::string name, glm::vec3 leftBottomCorner,
+			float length, glm::vec3 color, bool fill = false);
 };
