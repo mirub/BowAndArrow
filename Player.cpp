@@ -5,34 +5,58 @@
 
 #include <Core/Engine.h>
 
-Mesh* Player::createPlayer(std::string name, glm::vec3 leftBottomCorner,
+Mesh* Player::createBow(std::string name, glm::vec3 leftBottomCorner,
+	float length, glm::vec3 color, bool fill, int numTriangles) {
+
+	glm::vec3 center = leftBottomCorner;
+	float BalloonRadius = 0.5f;
+
+	float standardScaleOX = .75f;
+	float standardScaleOY = 1.25f;
+
+	std::vector<VertexFormat> vertices;
+
+	Mesh* bow = new Mesh(name);
+
+	std::vector<unsigned short> indices;
+
+	// Draw the circle
+	for (GLushort i = 0; i <= numTriangles; ++i)
+	{
+		float arg = 1.0f * (GLfloat)M_PI * i / numTriangles;
+
+		vertices.push_back(
+			VertexFormat(center + glm::vec3(standardScaleOX * length * sin(arg) * BalloonRadius,
+				length * cos(arg) * BalloonRadius * standardScaleOY, 0), color));
+		indices.push_back(i);
+	}
+
+	indices.push_back(numTriangles);
+	indices.push_back(1);
+
+	bow->SetDrawMode(GL_LINE_LOOP);
+
+	bow->InitFromData(vertices, indices);
+	return bow;
+}
+
+Mesh* Player::createArrow(std::string name, glm::vec3 leftBottomCorner,
 	float length, glm::vec3 color, bool fill) {
 
 	glm::vec3 corner = leftBottomCorner;
 
-	std::vector<VertexFormat> vertices =
-	{
-		VertexFormat(corner + glm::vec3(length, length, 0), color), // center (0)
-		VertexFormat(corner, color), // bottom left (1)
-		VertexFormat(corner + glm::vec3(0, length, 0), color), // bottom left right angle (2) 
-		VertexFormat(corner + glm::vec3(0,  2 * length, 0), color), // top triangle left (3)
-		VertexFormat(corner + glm::vec3(length,  2 * length, 0), color), // top triangle right (4)
-		VertexFormat(corner + glm::vec3(2 * length,  2 * length, 0), color), // right triangle up (5)
-		VertexFormat(corner + glm::vec3(2 * length, length, 0), color), // right triangle down (6)
-		VertexFormat(corner + glm::vec3(2 * length, 0, 0), color), // bottom right (7)
-		VertexFormat(corner + glm::vec3(length, 0 , 0), color) // bottom middle (8)
+	std::vector<VertexFormat> vertices = {
+		VertexFormat(corner, color),
+		VertexFormat(corner + glm::vec3(0.1 * length, -.2f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-0.1 * length, -.2f * length, 0), color),
+		VertexFormat(corner + glm::vec3(0, -length, 0), color)
 	};
 
-	Mesh* player = new Mesh(name);
-	std::vector<unsigned short> indices = { 0, 1, 2,
-											0, 3, 4,
-											0, 5, 6,
-											0, 7, 8 };
+	std::vector<unsigned short> indices = { 0, 1, 2, 0, 3};
 
-	if (fill) {
-		player->SetDrawMode(GL_LINE_LOOP);
-	}
+	Mesh* arrow = new Mesh(name);
+	arrow->SetDrawMode(GL_LINE_STRIP);
 
-	player->InitFromData(vertices, indices);
-	return player;
+	arrow->InitFromData(vertices, indices);
+	return arrow;
 }

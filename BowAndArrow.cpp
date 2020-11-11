@@ -6,6 +6,7 @@
 #include <Core/Engine.h>
 #include "Shuriken.h"
 #include "Balloon.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -40,6 +41,12 @@ void BowAndArrow::Init()
 
 	Mesh* stringMesh = Balloon::createString("string", center, balloonDiameter, glm::vec3(1, 0, 1));
 	AddMeshToList(stringMesh);
+
+	Mesh* bow = Player::createBow("bow", center, length, glm::vec3(1, 1, 1));
+	AddMeshToList(bow);
+
+	Mesh* arrow = Player::createArrow("arrow", center, length, glm::vec3(1, 1, 1));
+	AddMeshToList(arrow);
 }
 
 
@@ -57,16 +64,42 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 	{
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transformations::Translate(150, 250);
+
+		//modelMatrix *= Transformations::Translate(100, 100);
+		//modelMatrix *= Transformations::Scale(.15f, .15f);
+
+		float scaledWidth = (.15f * 200) / 2;
+
+		angularStep += 1.5f * deltaTimeSeconds;
+		modelMatrix *= Transformations::Translate(100, 100);
+		modelMatrix *= Transformations::Rotate(angularStep);
 		modelMatrix *= Transformations::Scale(.15f, .15f);
+		modelMatrix *= Transformations::Translate(-100, -100);
+		
 		RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
 	}
 
 	{
 		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(80, 90);
-		// modelMatrix *= Transformations::Scale(.1f, .15f);
+		modelMatrix *= Transformations::Translate(250, 300);
 		RenderMesh2D(meshes["circle"], shaders["VertexColor"], modelMatrix);
 		RenderMesh2D(meshes["string"], shaders["VertexColor"], modelMatrix);
+	}
+
+	{
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transformations::Translate(5, 65);
+		RenderMesh2D(meshes["bow"], shaders["VertexColor"], modelMatrix);
+	}
+
+	{
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transformations::Translate(100, 85);
+		
+		float radians = 285 * (M_PI / 180);
+		modelMatrix *= Transformations::Rotate(radians);
+
+		RenderMesh2D(meshes["arrow"], shaders["VertexColor"], modelMatrix);
 	}
 }
 
