@@ -30,8 +30,15 @@ void BowAndArrow::Init()
 
 	glm::vec3 corner = glm::vec3(0, 0, 0);
 	glm::vec3 center = glm::vec3(0, 0, 0);
-	float length = 100;
-	float balloonDiameter = 50;
+
+	float length = STANDARD_LEN;
+	float balloonDiameter = BALLOON_DIAMETER;
+	
+	playerX = INITIAL_PLAYER_X;
+	playerY = INITIAL_PLAYER_Y;
+
+	arrX = INITIAL_ARR_X;
+	arrY = INITIAL_ARR_Y;
 
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(1, 0, 0));
 	AddMeshToList(shuri);
@@ -61,22 +68,25 @@ void BowAndArrow::FrameStart()
 
 void BowAndArrow::Update(float deltaTimeSeconds)
 {
-	{
-		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(150, 250);
+	glm::ivec2 resolution = window->GetResolution();
 
-		//modelMatrix *= Transformations::Translate(100, 100);
-		//modelMatrix *= Transformations::Scale(.15f, .15f);
+	{	while (numShurikens) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transformations::Translate(150, 250);
 
-		float scaledWidth = (.15f * 200) / 2;
+			//modelMatrix *= Transformations::Translate(100, 100);
+			//modelMatrix *= Transformations::Scale(.15f, .15f);
 
-		angularStep += 1.5f * deltaTimeSeconds;
-		modelMatrix *= Transformations::Translate(100, 100);
-		modelMatrix *= Transformations::Rotate(angularStep);
-		modelMatrix *= Transformations::Scale(.15f, .15f);
-		modelMatrix *= Transformations::Translate(-100, -100);
-		
-		RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
+			angularStep += 1.5f * deltaTimeSeconds;
+			modelMatrix *= Transformations::Translate(100, 100);
+			modelMatrix *= Transformations::Rotate(angularStep);
+			modelMatrix *= Transformations::Scale(.15f, .15f);
+			modelMatrix *= Transformations::Translate(-100, -100);
+
+			RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
+			
+			numShurikens--;
+		}
 	}
 
 	{
@@ -88,13 +98,13 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 
 	{
 		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(5, 65);
+		modelMatrix *= Transformations::Translate(playerX, playerY);
 		RenderMesh2D(meshes["bow"], shaders["VertexColor"], modelMatrix);
 	}
 
 	{
 		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(100, 85);
+		modelMatrix *= Transformations::Translate(arrX, arrY);
 		
 		float radians = 285 * (M_PI / 180);
 		modelMatrix *= Transformations::Rotate(radians);
@@ -110,7 +120,17 @@ void BowAndArrow::FrameEnd()
 
 void BowAndArrow::OnInputUpdate(float deltaTime, int mods)
 {
+	if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT)) {
+		if (window->KeyHold(GLFW_KEY_W)) {
+			playerY += deltaTime * 150;
+			arrY += deltaTime * 150;
+		}
 
+		if (window->KeyHold(GLFW_KEY_S)) {
+			playerY -= deltaTime * 150;
+			arrY -= deltaTime * 150;
+		}
+	}
 }
 
 void BowAndArrow::OnKeyPress(int key, int mods)

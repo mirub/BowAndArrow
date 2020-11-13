@@ -6,6 +6,18 @@
 #include "Shuriken.h"
 #include "Transformations.h"
 
+#include <utility>
+#include <vector>
+#include <time.h>
+
+#define INITIAL_PLAYER_X 5
+#define INITIAL_PLAYER_Y 65
+#define INITIAL_ARR_X 100
+#define INITIAL_ARR_Y 85
+#define PLAYER_MOVEMENT 150
+#define STANDARD_LEN 100
+#define BALLOON_DIAMETER 50
+
 class BowAndArrow : public SimpleScene
 {
 public:
@@ -32,4 +44,7 @@ protected:
 	float translateX, translateY;
 	float scaleX, scaleY;
 	float angularStep;
+	float playerX, playerY;
+	float arrX, arrY;
+	int numShurikens;
 };
