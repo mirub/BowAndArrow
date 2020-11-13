@@ -40,6 +40,12 @@ void BowAndArrow::Init()
 	arrX = INITIAL_ARR_X;
 	arrY = INITIAL_ARR_Y;
 
+	srand(time(NULL));
+	numShurikens = 0;
+	while (numShurikens < 15) {
+		numShurikens = rand() % 50;
+	}
+
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(1, 0, 0));
 	AddMeshToList(shuri);
 
@@ -69,13 +75,17 @@ void BowAndArrow::FrameStart()
 void BowAndArrow::Update(float deltaTimeSeconds)
 {
 	glm::ivec2 resolution = window->GetResolution();
-
-	{	while (numShurikens) {
+	{	
+		while (numShurikens) {
 			modelMatrix = glm::mat3(1);
-			modelMatrix *= Transformations::Translate(150, 250);
+			srand(time(NULL));
 
-			//modelMatrix *= Transformations::Translate(100, 100);
-			//modelMatrix *= Transformations::Scale(.15f, .15f);
+			float deltaX = rand() % resolution.x;
+			float deltaY = rand() % 100 + resolution.y;
+
+			shuris.push_back(make_pair(deltaX, deltaY));
+
+			modelMatrix *= Transformations::Translate(150, 250);
 
 			angularStep += 1.5f * deltaTimeSeconds;
 			modelMatrix *= Transformations::Translate(100, 100);

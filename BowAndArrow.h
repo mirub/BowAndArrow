@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include <time.h>
+#include <stdlib.h>
 
 #define INITIAL_PLAYER_X 5
 #define INITIAL_PLAYER_Y 65
@@ -47,4 +48,5 @@ protected:
 	float playerX, playerY;
 	float arrX, arrY;
 	int numShurikens;
+	std::vector<std::pair<float, float>> shuris;
 };
