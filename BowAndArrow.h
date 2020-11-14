@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 
+
 #define INITIAL_PLAYER_X 5
 #define INITIAL_PLAYER_Y 65
 #define INITIAL_ARR_X 5
@@ -19,8 +20,18 @@
 #define STANDARD_LEN 100
 #define BALLOON_DIAMETER 50
 #define SHURIKEN_SPEED .1f
+#define SHURIKEN_SCALE .3f
 #define BALLOON_SPEED .08f
-#define MAX_SPEED 500
+#define MAX_SPEED 1000
+#define GRAVITY 9.8f
+#define SHURIKEN_BONUS 500
+#define SHURIKEN_DESTRUCT_SPEED .5f
+#define BALLOON_BONUS 100
+#define BALLOON_PENALTY 150
+#define BALLOON_Y_SCALE 1.1f
+#define BALLOON_X_SCALE .75f
+#define BOW_X_SCALE .75f
+#define BOW_Y_SCALE 1.25f
 
 class BowAndArrow : public SimpleScene
 {
@@ -56,5 +67,9 @@ protected:
 	std::vector<glm::vec2> reds;
 	std::vector<glm::vec2> yellows;
 	float currentSpeed;
-	float arrowAngleTan;
+	float arrowAngle;
+	int releaseButton;
+	int score;
+	float launchAngle;
+	int lives;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Engine.h>
+#include "BowAndArrow.h"
 
 namespace Player {
 	Mesh *createBow(std::string name, glm::vec3 leftBottomCorner,

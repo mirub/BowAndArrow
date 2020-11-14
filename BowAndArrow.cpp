@@ -42,11 +42,13 @@ void BowAndArrow::Init()
 
 	numShurikens = 100 + rand() % 20;
 	shuriIndex = 0;
+	releaseButton = 0;
+	score = 0;
+	lives = 3;
 
 	float scaleSize;
 
-	currentSpeed = 0;
-	arrowAngleTan = 1;
+	currentSpeed = 5;
 
 	for(int i = 0; i < numShurikens; ++i) {
 
@@ -54,7 +56,7 @@ void BowAndArrow::Init()
 			translateX = resolution.x + rand() % 10000000 + .05f * shuris[i - (short)1].x;
 		}
 		translateY = rand() % resolution.y;
-		scaleSize = .3f;
+		scaleSize = SHURIKEN_SCALE;
 
 		shuris.push_back(glm::vec3(translateX, translateY, scaleSize));
 	}
@@ -134,6 +136,45 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 
 			shuris[i].x -= deltaTimeSeconds * SHURIKEN_SPEED * resolution.x;
 
+			// Arrow collision
+			float shuriDiameter = sqrt((STANDARD_LEN * 2 * shuris[i].z)
+				* (STANDARD_LEN * 2 * shuris[i].z) * 2);
+			float shuriCenterX = shuris[i].x + (shuriDiameter / 2);
+			float shuriCenterY = shuris[i].y + (shuriDiameter / 2);
+			float distanceX = fabs(arrX - shuriCenterX);
+			float distanceY = fabs(arrY - shuriCenterY);
+
+			if (distanceX < (shuriDiameter / 2) && distanceY < (shuriDiameter / 2)) {
+				// is collision
+				score += SHURIKEN_BONUS;
+				//cout << score << "\n";
+				shuris[i].x = -200;
+			}
+
+			// Bow collison -- NOT WORKING YET
+			//float bowDiameterX = BALLOON_DIAMETER * BOW_X_SCALE;
+			//float bowDiameterY = BALLOON_DIAMETER * BOW_Y_SCALE;
+
+			float bowDistanceX = fabs(playerX - shuriCenterX);
+			float bowDistanceY = fabs(playerY - shuriCenterY);
+			float distance = sqrt(bowDistanceX * bowDistanceX +
+				bowDistanceY * bowDistanceY);
+
+			
+			if (distance < (BALLOON_DIAMETER + shuriDiameter)) {
+				shuris[i].x = resolution.x - (BALLOON_DIAMETER + shuriDiameter);
+				shuris[i].y = resolution.y + (BALLOON_DIAMETER + shuriDiameter);
+				lives--;
+			}
+			
+			
+			// Game Over
+			if (lives == 0) {
+				cout << "GAME OVER\n";
+				exit(0);
+			}
+			
+
 			RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
 		}
 	}
@@ -144,6 +185,18 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 			modelMatrix *= Transformations::Translate(reds[i].x, reds[i].y);
 
 			reds[i].y += deltaTimeSeconds * BALLOON_SPEED * resolution.y;
+
+			float balloonDiameterY = STANDARD_LEN * BALLOON_Y_SCALE;
+			float balloonDiameterX = STANDARD_LEN * BALLOON_X_SCALE;
+			float distanceX = fabs(arrX - reds[i].x);
+			float distanceY = fabs(arrY - reds[i].y);
+
+			if (distanceX < (balloonDiameterX / 2) && distanceY < (balloonDiameterY / 2)) {
+				// is collision
+				score += BALLOON_BONUS;
+				//cout << score << "\n";
+				reds[i].y = resolution.y + 100;
+			}
 
 			RenderMesh2D(meshes["redCircle"], shaders["VertexColor"], modelMatrix);
 			RenderMesh2D(meshes["redString"], shaders["VertexColor"], modelMatrix);
@@ -157,6 +210,18 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 
 			yellows[i].y += deltaTimeSeconds * BALLOON_SPEED * resolution.y;
 
+			float balloonDiameterY = STANDARD_LEN * BALLOON_Y_SCALE;
+			float balloonDiameterX = STANDARD_LEN * BALLOON_X_SCALE;
+			float distanceX = fabs(arrX - yellows[i].x);
+			float distanceY = fabs(arrY - yellows[i].y);
+
+			if (distanceX < (balloonDiameterX / 2) && distanceY < (balloonDiameterY / 2)) {
+				// is collision
+				score -= BALLOON_PENALTY;
+				//cout << score << "\n";
+				yellows[i].y = resolution.y + 100;
+			}
+			
 			RenderMesh2D(meshes["yellowCircle"], shaders["VertexColor"], modelMatrix);
 			RenderMesh2D(meshes["yellowString"], shaders["VertexColor"], modelMatrix);
 		}
@@ -165,7 +230,7 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 	{
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transformations::Translate(playerX, playerY);
-		float radians = -arrowAngleTan * .5f;
+		float radians = arrowAngle;
 		modelMatrix *= Transformations::Rotate(radians);
 
 		RenderMesh2D(meshes["bow"], shaders["VertexColor"], modelMatrix);
@@ -173,10 +238,33 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 
 	{
 		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(arrX + playerX, arrY);
-		
-		float radians = 270 * (M_PI / 180) - arrowAngleTan * .5f;
-		modelMatrix *= Transformations::Rotate(radians);
+		modelMatrix *= Transformations::Translate(arrX, arrY);
+
+		// Release the arrow
+		if (releaseButton) {
+			arrX += currentSpeed * deltaTimeSeconds * cos(launchAngle);
+
+			arrY += currentSpeed * deltaTimeSeconds * sin(launchAngle) - 
+				(GRAVITY * deltaTimeSeconds * deltaTimeSeconds / 2);
+
+			float radians = 270 * (M_PI / 180) + launchAngle;
+			modelMatrix *= Transformations::Rotate(radians);
+
+			if (arrX > resolution.x || arrY > resolution.y || arrY < 0) {
+				//cout << playerX << " " << playerY << "\n";
+				arrX = playerX;
+				arrY = playerY;
+				releaseButton = 0;
+			}
+		}
+
+		// Rotate with bow
+		if (!releaseButton) {
+			arrX = playerX;
+			arrY = playerY;
+			float radians = 270 * (M_PI / 180) + arrowAngle;
+			modelMatrix *= Transformations::Rotate(radians);
+		}
 
 		RenderMesh2D(meshes["arrow"], shaders["VertexColor"], modelMatrix);
 	}
@@ -192,21 +280,45 @@ void BowAndArrow::OnInputUpdate(float deltaTime, int mods)
 	if (!window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT)) {
 		if (window->KeyHold(GLFW_KEY_W)) {
 			playerY += deltaTime * 150;
-			arrY += deltaTime * 150;
+			if (!releaseButton) {
+				arrY += deltaTime * 150;
+			}
 		}
 
 		if (window->KeyHold(GLFW_KEY_S)) {
 			playerY -= deltaTime * 150;
-			arrY -= deltaTime * 150;
+			if (!releaseButton) {
+				arrY -= deltaTime * 150;
+			}
 		}
 	}
 
 	if (window->MouseHold(GLFW_MOUSE_BUTTON_LEFT)) {
-		currentSpeed += deltaTime * 50;
+		//cout << playerX << " " << playerY << "\n";
+		arrX = playerX;
+		arrY = playerY;
+
+		if (window->KeyHold(GLFW_KEY_W)) {
+			playerY += deltaTime * 150;
+			if (!releaseButton) {
+				arrY += deltaTime * 150;
+			}
+		}
+
+		if (window->KeyHold(GLFW_KEY_S)) {
+			playerY -= deltaTime * 150;
+			if (!releaseButton) {
+				arrY -= deltaTime * 150;
+			}
+		}
+
+		currentSpeed += deltaTime * 100;
 
 		if (currentSpeed == MAX_SPEED) {
 			currentSpeed = 0;
 		}
+
+		releaseButton = 0;
 	}
 }
 
@@ -223,8 +335,8 @@ void BowAndArrow::OnKeyRelease(int key, int mods)
 void BowAndArrow::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
 	// add mouse move event
-
-	arrowAngleTan = (mouseY - arrY) / (mouseX - arrX);
+	glm::ivec2 resolution = window->GetResolution();
+	arrowAngle = atan((double) (resolution.y - mouseY - arrY) / mouseX);
 }
 
 void BowAndArrow::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
@@ -235,6 +347,12 @@ void BowAndArrow::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 void BowAndArrow::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 {
 	// add mouse button release event
+	glm::ivec2 resolution = window->GetResolution();
+
+	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		launchAngle = arrowAngle;
+		releaseButton = 1;
+	}
 }
 
 void BowAndArrow::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)

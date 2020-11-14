@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Engine.h>
+#include "BowAndArrow.h"
 
 namespace Balloon {
 	Mesh* createCircle(std::string name, glm::vec3 leftBottomCorner,

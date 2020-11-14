@@ -10,8 +10,8 @@ Mesh* Balloon::createCircle(std::string name, glm::vec3 circleCenter,
 	
 	glm::vec3 center = circleCenter;
 	float BalloonRadius = 0.8f;
-	float standardScaleOX = .75f;
-	float standardScaleOY = 1.1f;
+	float standardScaleOX = BALLOON_X_SCALE;
+	float standardScaleOY = BALLOON_Y_SCALE;
 
 	std::vector<VertexFormat> vertices;
 

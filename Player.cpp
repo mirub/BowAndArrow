@@ -11,8 +11,8 @@ Mesh* Player::createBow(std::string name, glm::vec3 leftBottomCorner,
 	glm::vec3 center = leftBottomCorner;
 	float BalloonRadius = 0.5f;
 
-	float standardScaleOX = .75f;
-	float standardScaleOY = 1.25f;
+	float standardScaleOX = BOW_X_SCALE;
+	float standardScaleOY = BOW_Y_SCALE;
 
 	std::vector<VertexFormat> vertices;
 
