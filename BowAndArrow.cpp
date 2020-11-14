@@ -1,4 +1,4 @@
-#include "BowAndArrow.h"
+﻿#include "BowAndArrow.h"
 
 #include <vector>
 #include <iostream>
@@ -46,8 +46,9 @@ void BowAndArrow::Init()
 	float scaleSize;
 
 	currentSpeed = 0;
+	arrowAngleTan = 1;
 
-	for (int i = 0; i < numShurikens; ++i) {
+	for(int i = 0; i < numShurikens; ++i) {
 
 		if (i != 0) {
 			translateX = resolution.x + rand() % 10000000 + .05f * shuris[i - (short)1].x;
@@ -81,6 +82,7 @@ void BowAndArrow::Init()
 
 		yellows.push_back(glm::vec2(translateX, translateY));
 	}
+
 
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(shuri);
@@ -163,14 +165,17 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 	{
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transformations::Translate(playerX, playerY);
+		float radians = -arrowAngleTan * .5f;
+		modelMatrix *= Transformations::Rotate(radians);
+
 		RenderMesh2D(meshes["bow"], shaders["VertexColor"], modelMatrix);
 	}
 
 	{
 		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(arrX, arrY);
+		modelMatrix *= Transformations::Translate(arrX + playerX, arrY);
 		
-		float radians = 285 * (M_PI / 180);
+		float radians = 270 * (M_PI / 180) - arrowAngleTan * .5f;
 		modelMatrix *= Transformations::Rotate(radians);
 
 		RenderMesh2D(meshes["arrow"], shaders["VertexColor"], modelMatrix);
@@ -202,9 +207,6 @@ void BowAndArrow::OnInputUpdate(float deltaTime, int mods)
 		if (currentSpeed == MAX_SPEED) {
 			currentSpeed = 0;
 		}
-
-
-
 	}
 }
 
@@ -221,6 +223,8 @@ void BowAndArrow::OnKeyRelease(int key, int mods)
 void BowAndArrow::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 {
 	// add mouse move event
+
+	arrowAngleTan = (mouseY - arrY) / (mouseX - arrX);
 }
 
 void BowAndArrow::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)

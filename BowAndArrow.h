@@ -13,13 +13,13 @@
 
 #define INITIAL_PLAYER_X 5
 #define INITIAL_PLAYER_Y 65
-#define INITIAL_ARR_X 100
-#define INITIAL_ARR_Y 85
+#define INITIAL_ARR_X 5
+#define INITIAL_ARR_Y 65
 #define PLAYER_MOVEMENT 150
 #define STANDARD_LEN 100
 #define BALLOON_DIAMETER 50
 #define SHURIKEN_SPEED .1f
-#define BALLOON_SPEED .07f
+#define BALLOON_SPEED .08f
 #define MAX_SPEED 500
 
 class BowAndArrow : public SimpleScene
@@ -56,4 +56,5 @@ protected:
 	std::vector<glm::vec2> reds;
 	std::vector<glm::vec2> yellows;
 	float currentSpeed;
+	float arrowAngleTan;
 };

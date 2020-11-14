@@ -47,12 +47,12 @@ Mesh* Player::createArrow(std::string name, glm::vec3 leftBottomCorner,
 
 	std::vector<VertexFormat> vertices = {
 		VertexFormat(corner, color),
-		VertexFormat(corner + glm::vec3(0.1 * length, -.2f * length, 0), color),
-		VertexFormat(corner + glm::vec3(-0.1 * length, -.2f * length, 0), color),
-		VertexFormat(corner + glm::vec3(0, -length, 0), color)
+		VertexFormat(corner + glm::vec3(0, length, 0), color),
+		VertexFormat(corner + glm::vec3(.25 * length, .8f * length, 0), color),
+		VertexFormat(corner + glm::vec3(-.25 * length, .8f * length, 0), color),
 	};
 
-	std::vector<unsigned short> indices = { 0, 1, 2, 0, 3 };
+	std::vector<unsigned short> indices = { 0, 1, 2, 3, 1 };
 
 	Mesh* arrow = new Mesh(name);
 	arrow->SetDrawMode(GL_LINE_STRIP);
