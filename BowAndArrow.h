@@ -18,6 +18,7 @@
 #define PLAYER_MOVEMENT 150
 #define STANDARD_LEN 100
 #define BALLOON_DIAMETER 50
+#define SHURIKEN_SPEED .15f
 
 class BowAndArrow : public SimpleScene
 {
@@ -47,6 +48,9 @@ protected:
 	float angularStep;
 	float playerX, playerY;
 	float arrX, arrY;
-	int numShurikens;
-	std::vector<std::pair<float, float>> shuris;
+	int numShurikens, shuriIndex;
+	int numReds, numYellows;
+	std::vector<glm::vec3> shuris;
+	std::vector<glm::vec2> reds;
+	std::vector<glm::vec2> yellows;
 };

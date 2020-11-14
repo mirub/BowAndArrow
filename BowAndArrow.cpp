@@ -33,29 +33,47 @@ void BowAndArrow::Init()
 
 	float length = STANDARD_LEN;
 	float balloonDiameter = BALLOON_DIAMETER;
-	
+
 	playerX = INITIAL_PLAYER_X;
 	playerY = INITIAL_PLAYER_Y;
 
 	arrX = INITIAL_ARR_X;
 	arrY = INITIAL_ARR_Y;
 
-	srand(time(NULL));
-	numShurikens = 0;
-	while (numShurikens < 15) {
-		numShurikens = rand() % 50;
+	numShurikens = 7 + rand() % 20;
+	shuriIndex = 0;
+
+	float scaleSize;
+
+	for (int i = 0; i < numShurikens; ++i) {
+
+		translateX = resolution.x + rand() % 20000;
+		translateY = rand() % resolution.y;
+		scaleSize = .3f;
+
+		shuris.push_back(glm::vec3(translateX, translateY, scaleSize));
 	}
 
-	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(1, 0, 0));
+	numReds = 15 + rand() % 20;
+
+	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(shuri);
 
-	Mesh* circle = Balloon::createCircle("circle", center, balloonDiameter, glm::vec3(1, 0, 1));
-	AddMeshToList(circle);
+	// 255, 102, 102
+	Mesh* redCircle = Balloon::createCircle("redCircle", center, balloonDiameter, glm::vec3(1, .4f, .4f));
+	AddMeshToList(redCircle);
 
-	Mesh* stringMesh = Balloon::createString("string", center, balloonDiameter, glm::vec3(1, 0, 1));
-	AddMeshToList(stringMesh);
+	Mesh* redStringMesh = Balloon::createString("redString", center, balloonDiameter, glm::vec3(1, .4f, .4f));
+	AddMeshToList(redStringMesh);
 
-	Mesh* bow = Player::createBow("bow", center, length, glm::vec3(1, 1, 1));
+	// 255, 255, 102
+	Mesh* yellowCircle = Balloon::createCircle("yellowCircle", center, balloonDiameter, glm::vec3(1, 1, .4f));
+	AddMeshToList(yellowCircle);
+
+	Mesh* yellowStringMesh = Balloon::createString("yellowString", center, balloonDiameter, glm::vec3(1, 1, .4f));
+	AddMeshToList(yellowStringMesh);
+
+	Mesh* bow = Player::createBow("bow", center, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(bow);
 
 	Mesh* arrow = Player::createArrow("arrow", center, length, glm::vec3(1, 1, 1));
@@ -67,7 +85,8 @@ void BowAndArrow::FrameStart()
 {
 	// Clears the color buffer (using the previously set color) and depth buffer
 	// glClearColor(1, .5f, .5f, 1);
-	glClearColor(0, 0, 0, 1);
+	// 255, 204, 229
+	glClearColor(1, .8f, .91f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 }
@@ -75,35 +94,36 @@ void BowAndArrow::FrameStart()
 void BowAndArrow::Update(float deltaTimeSeconds)
 {
 	glm::ivec2 resolution = window->GetResolution();
-	{	
-		while (numShurikens) {
+
+	{	 
+		for (int i = 0; i < numShurikens; ++i) {
 			modelMatrix = glm::mat3(1);
-			srand(time(NULL));
+			modelMatrix *= Transformations::Translate(shuris[i].x, shuris[i].y);
 
-			float deltaX = rand() % resolution.x;
-			float deltaY = rand() % 100 + resolution.y;
-
-			shuris.push_back(make_pair(deltaX, deltaY));
-
-			modelMatrix *= Transformations::Translate(150, 250);
-
-			angularStep += 1.5f * deltaTimeSeconds;
+			angularStep += .5f * deltaTimeSeconds;
 			modelMatrix *= Transformations::Translate(100, 100);
 			modelMatrix *= Transformations::Rotate(angularStep);
-			modelMatrix *= Transformations::Scale(.15f, .15f);
+			modelMatrix *= Transformations::Scale(shuris[i].z, shuris[i].z);
 			modelMatrix *= Transformations::Translate(-100, -100);
 
+			shuris[i].x -= deltaTimeSeconds * SHURIKEN_SPEED * resolution.x;
+
 			RenderMesh2D(meshes["shuriken"], shaders["VertexColor"], modelMatrix);
-			
-			numShurikens--;
 		}
 	}
 
 	{
 		modelMatrix = glm::mat3(1);
 		modelMatrix *= Transformations::Translate(250, 300);
-		RenderMesh2D(meshes["circle"], shaders["VertexColor"], modelMatrix);
-		RenderMesh2D(meshes["string"], shaders["VertexColor"], modelMatrix);
+		RenderMesh2D(meshes["redCircle"], shaders["VertexColor"], modelMatrix);
+		RenderMesh2D(meshes["redString"], shaders["VertexColor"], modelMatrix);
+	}
+
+	{
+		modelMatrix = glm::mat3(1);
+		modelMatrix *= Transformations::Translate(250, 500);
+		RenderMesh2D(meshes["yellowCircle"], shaders["VertexColor"], modelMatrix);
+		RenderMesh2D(meshes["yellowString"], shaders["VertexColor"], modelMatrix);
 	}
 
 	{
