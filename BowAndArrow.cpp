@@ -40,33 +40,57 @@ void BowAndArrow::Init()
 	arrX = INITIAL_ARR_X;
 	arrY = INITIAL_ARR_Y;
 
-	numShurikens = 7 + rand() % 20;
+	numShurikens = 100 + rand() % 20;
 	shuriIndex = 0;
 
 	float scaleSize;
 
+	currentSpeed = 0;
+
 	for (int i = 0; i < numShurikens; ++i) {
 
-		translateX = resolution.x + rand() % 20000;
+		if (i != 0) {
+			translateX = resolution.x + rand() % 10000000 + .05f * shuris[i - (short)1].x;
+		}
 		translateY = rand() % resolution.y;
 		scaleSize = .3f;
 
 		shuris.push_back(glm::vec3(translateX, translateY, scaleSize));
 	}
 
-	numReds = 15 + rand() % 20;
+	numReds = 100 + rand() % 20;
+
+	for (int i = 0; i < numReds; ++i) {
+
+		translateX = rand() % resolution.x + 100;
+		if (i != 0) {
+			translateY = -rand() % 500000000 - .5f * reds[i - (short)1].y;
+		}
+
+		reds.push_back(glm::vec2(translateX, translateY));
+	}
+
+	numYellows = 150 + rand() % 20;
+
+	for (int i = 0; i < numYellows; ++i) {
+
+		translateX = rand() % resolution.x + 100;
+		if (i != 0) {
+			translateY = -rand() % 700000000 - .5f * yellows[i - (short)1].y;
+		}
+
+		yellows.push_back(glm::vec2(translateX, translateY));
+	}
 
 	Mesh* shuri = Shuriken::createShuriken("shuriken", corner, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(shuri);
 
-	// 255, 102, 102
 	Mesh* redCircle = Balloon::createCircle("redCircle", center, balloonDiameter, glm::vec3(1, .4f, .4f));
 	AddMeshToList(redCircle);
 
 	Mesh* redStringMesh = Balloon::createString("redString", center, balloonDiameter, glm::vec3(1, .4f, .4f));
 	AddMeshToList(redStringMesh);
 
-	// 255, 255, 102
 	Mesh* yellowCircle = Balloon::createCircle("yellowCircle", center, balloonDiameter, glm::vec3(1, 1, .4f));
 	AddMeshToList(yellowCircle);
 
@@ -76,7 +100,7 @@ void BowAndArrow::Init()
 	Mesh* bow = Player::createBow("bow", center, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(bow);
 
-	Mesh* arrow = Player::createArrow("arrow", center, length, glm::vec3(1, 1, 1));
+	Mesh* arrow = Player::createArrow("arrow", center, length, glm::vec3(.6f, 0, .3f));
 	AddMeshToList(arrow);
 }
 
@@ -100,9 +124,9 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 			modelMatrix = glm::mat3(1);
 			modelMatrix *= Transformations::Translate(shuris[i].x, shuris[i].y);
 
-			angularStep += .5f * deltaTimeSeconds;
+			angularStep += .07f * deltaTimeSeconds;
 			modelMatrix *= Transformations::Translate(100, 100);
-			modelMatrix *= Transformations::Rotate(angularStep);
+			modelMatrix *= Transformations::Rotate(angularStep * .75f);
 			modelMatrix *= Transformations::Scale(shuris[i].z, shuris[i].z);
 			modelMatrix *= Transformations::Translate(-100, -100);
 
@@ -112,18 +136,28 @@ void BowAndArrow::Update(float deltaTimeSeconds)
 		}
 	}
 
-	{
-		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(250, 300);
-		RenderMesh2D(meshes["redCircle"], shaders["VertexColor"], modelMatrix);
-		RenderMesh2D(meshes["redString"], shaders["VertexColor"], modelMatrix);
+	{	
+		for (int i = 0; i < numReds; ++i) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transformations::Translate(reds[i].x, reds[i].y);
+
+			reds[i].y += deltaTimeSeconds * BALLOON_SPEED * resolution.y;
+
+			RenderMesh2D(meshes["redCircle"], shaders["VertexColor"], modelMatrix);
+			RenderMesh2D(meshes["redString"], shaders["VertexColor"], modelMatrix);
+		}
 	}
 
 	{
-		modelMatrix = glm::mat3(1);
-		modelMatrix *= Transformations::Translate(250, 500);
-		RenderMesh2D(meshes["yellowCircle"], shaders["VertexColor"], modelMatrix);
-		RenderMesh2D(meshes["yellowString"], shaders["VertexColor"], modelMatrix);
+		for (int i = 0; i < numYellows; ++i) {
+			modelMatrix = glm::mat3(1);
+			modelMatrix *= Transformations::Translate(yellows[i].x, yellows[i].y);
+
+			yellows[i].y += deltaTimeSeconds * BALLOON_SPEED * resolution.y;
+
+			RenderMesh2D(meshes["yellowCircle"], shaders["VertexColor"], modelMatrix);
+			RenderMesh2D(meshes["yellowString"], shaders["VertexColor"], modelMatrix);
+		}
 	}
 
 	{
@@ -160,6 +194,17 @@ void BowAndArrow::OnInputUpdate(float deltaTime, int mods)
 			playerY -= deltaTime * 150;
 			arrY -= deltaTime * 150;
 		}
+	}
+
+	if (window->MouseHold(GLFW_MOUSE_BUTTON_LEFT)) {
+		currentSpeed += deltaTime * 50;
+
+		if (currentSpeed == MAX_SPEED) {
+			currentSpeed = 0;
+		}
+
+
+
 	}
 }
 

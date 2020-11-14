@@ -20,7 +20,7 @@ Mesh* Player::createBow(std::string name, glm::vec3 leftBottomCorner,
 
 	std::vector<unsigned short> indices;
 
-	// Draw the circle
+	// Draw the bow
 	for (GLushort i = 0; i <= numTriangles; ++i)
 	{
 		float arg = 1.0f * (GLfloat)M_PI * i / numTriangles;
@@ -52,7 +52,7 @@ Mesh* Player::createArrow(std::string name, glm::vec3 leftBottomCorner,
 		VertexFormat(corner + glm::vec3(0, -length, 0), color)
 	};
 
-	std::vector<unsigned short> indices = { 0, 1, 2, 0, 3};
+	std::vector<unsigned short> indices = { 0, 1, 2, 0, 3 };
 
 	Mesh* arrow = new Mesh(name);
 	arrow->SetDrawMode(GL_LINE_STRIP);

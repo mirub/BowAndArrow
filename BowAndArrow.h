@@ -18,7 +18,9 @@
 #define PLAYER_MOVEMENT 150
 #define STANDARD_LEN 100
 #define BALLOON_DIAMETER 50
-#define SHURIKEN_SPEED .15f
+#define SHURIKEN_SPEED .1f
+#define BALLOON_SPEED .07f
+#define MAX_SPEED 500
 
 class BowAndArrow : public SimpleScene
 {
@@ -53,4 +55,5 @@ protected:
 	std::vector<glm::vec3> shuris;
 	std::vector<glm::vec2> reds;
 	std::vector<glm::vec2> yellows;
+	float currentSpeed;
 };
