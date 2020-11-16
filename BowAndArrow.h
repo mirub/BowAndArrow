@@ -5,6 +5,7 @@
 #include <Core/Engine.h>
 #include "Shuriken.h"
 #include "Transformations.h"
+#include "SpeedBar.h"
 
 #include <utility>
 #include <vector>
@@ -12,17 +13,19 @@
 #include <stdlib.h>
 
 
-#define INITIAL_PLAYER_X 5
-#define INITIAL_PLAYER_Y 65
-#define INITIAL_ARR_X 5
-#define INITIAL_ARR_Y 65
+#define INITIAL_PLAYER_X 10
+#define INITIAL_PLAYER_Y 105
+#define INITIAL_ARR_X 10
+#define INITIAL_ARR_Y 105
+#define INITIAL_SPEED_X 5
+#define INITIAL_SPEED_Y 5
 #define PLAYER_MOVEMENT 150
 #define STANDARD_LEN 100
 #define BALLOON_DIAMETER 50
 #define SHURIKEN_SPEED .1f
 #define SHURIKEN_SCALE .3f
 #define BALLOON_SPEED .08f
-#define MAX_SPEED 1000
+#define MAX_SPEED 200
 #define GRAVITY 9.8f
 #define SHURIKEN_BONUS 500
 #define SHURIKEN_DESTRUCT_SPEED .5f
@@ -32,6 +35,11 @@
 #define BALLOON_X_SCALE .75f
 #define BOW_X_SCALE .75f
 #define BOW_Y_SCALE 1.25f
+#define BAR_LEN 50
+#define INITIAL_SPEED 10
+#define INITIAL_SPEED_LEN 10
+#define MAX_SPEED_LEN 150
+#define INITIAL_SCALE_X .15f
 
 class BowAndArrow : public SimpleScene
 {
@@ -61,6 +69,7 @@ protected:
 	float angularStep;
 	float playerX, playerY;
 	float arrX, arrY;
+	float speedX, speedY;
 	int numShurikens, shuriIndex;
 	int numReds, numYellows;
 	std::vector<glm::vec3> shuris;
